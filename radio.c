@@ -49,11 +49,8 @@ static const PT22xxChip pt_chip_values[] = {PT22xxChipPT2257, PT22xxChipPT2259};
 static const char* pt_chip_names[] = {"PT2257", "PT2259-S"};
 static PT22xxChip pt_chip = PT22xxChipPT2257;
 
-// PT address selection stays manual and independent from the selected protocol.
-// NOTE: This app uses an 8-bit I2C address byte (already left-shifted like TEA5767_ADR).
-static const uint8_t pt_i2c_addr8_values[] = {0x88, 0x44};
-static const char* pt_i2c_addr8_names[] = {"0x88", "0x44"};
-static uint8_t pt_i2c_addr8 = 0x88;
+// Dedicated boards use a fixed 8-bit PT I2C address byte.
+static const uint8_t pt_i2c_addr8 = 0x88;
 
 // PT attenuation in dB: 0..79 (0 => max volume, 79 => min volume)
 static uint8_t pt_atten_db = 20;
@@ -406,13 +403,6 @@ static void fmradio_settings_load(void) {
             }
         }
 
-        uint32_t addr8 = 0;
-        if(flipper_format_read_uint32(ff, "PtI2cAddr8", &addr8, 1)) {
-            if((addr8 == 0x88U) || (addr8 == 0x44U)) {
-                pt_i2c_addr8 = (uint8_t)addr8;
-            }
-        }
-
     } while(false);
 
     flipper_format_file_close(ff);
@@ -460,9 +450,6 @@ static void fmradio_settings_save(void) {
 
         uint32_t chip_type = (uint32_t)pt_chip;
         if(!flipper_format_write_uint32(ff, "PtChipType", &chip_type, 1)) break;
-
-        uint32_t addr8 = pt_i2c_addr8;
-        if(!flipper_format_write_uint32(ff, "PtI2cAddr8", &addr8, 1)) break;
 
         ok = true;
     } while(false);
@@ -616,7 +603,6 @@ typedef struct {
     VariableItem* item_freq;
     VariableItem* item_volume;
     VariableItem* item_pt_chip;
-    VariableItem* item_pt_i2c_addr;
     VariableItem* item_snc;
     VariableItem* item_deemph;
     VariableItem* item_softmute;
@@ -826,21 +812,6 @@ void fmradio_controller_pt_chip_change(VariableItem* item) {
 
     pt_chip = pt_chip_values[index];
     variable_item_set_current_value_text(item, pt_chip_names[index]);
-
-    (void)fmradio_pt_refresh_state(true);
-    fmradio_apply_pt_state();
-    fmradio_settings_mark_dirty();
-}
-
-void fmradio_controller_pt_i2c_addr_change(VariableItem* item) {
-    uint8_t index = variable_item_get_current_value_index(item);
-    if(index >= COUNT_OF(pt_i2c_addr8_values)) {
-        index = 0;
-        variable_item_set_current_value_index(item, index);
-    }
-
-    pt_i2c_addr8 = pt_i2c_addr8_values[index];
-    variable_item_set_current_value_text(item, pt_i2c_addr8_names[index]);
 
     (void)fmradio_pt_refresh_state(true);
     fmradio_apply_pt_state();
@@ -1100,24 +1071,6 @@ FMRadio* fmradio_controller_alloc() {
     variable_item_set_current_value_index(app->item_pt_chip, chip_index);
     variable_item_set_current_value_text(app->item_pt_chip, pt_chip_names[chip_index]);
 
-    // PT I2C address byte selection
-    app->item_pt_i2c_addr = variable_item_list_add(
-        app->variable_item_list_config,
-        "PT Addr",
-        COUNT_OF(pt_i2c_addr8_values),
-        fmradio_controller_pt_i2c_addr_change,
-        app);
-    if(!app->item_pt_i2c_addr) goto fail;
-    uint8_t addr_index = 0;
-    for(uint8_t i = 0; i < COUNT_OF(pt_i2c_addr8_values); i++) {
-        if(pt_i2c_addr8_values[i] == pt_i2c_addr8) {
-            addr_index = i;
-            break;
-        }
-    }
-    variable_item_set_current_value_index(app->item_pt_i2c_addr, addr_index);
-    variable_item_set_current_value_text(app->item_pt_i2c_addr, pt_i2c_addr8_names[addr_index]);
-
     view_set_previous_callback(variable_item_list_get_view(app->variable_item_list_config),fmradio_controller_navigation_submenu_callback);
     view_dispatcher_add_view(app->view_dispatcher,FMRadioViewConfigure,variable_item_list_get_view(app->variable_item_list_config));
 
@@ -1207,17 +1160,6 @@ FMRadio* fmradio_controller_alloc() {
     if(app->item_backlight) {
         variable_item_set_current_value_index(app->item_backlight, backlight_keep_on ? 1 : 0);
         variable_item_set_current_value_text(app->item_backlight, backlight_keep_on ? "On" : "Off");
-    }
-    if(app->item_pt_i2c_addr) {
-        uint8_t addr_index = 0;
-        for(uint8_t i = 0; i < COUNT_OF(pt_i2c_addr8_values); i++) {
-            if(pt_i2c_addr8_values[i] == pt_i2c_addr8) {
-                addr_index = i;
-                break;
-            }
-        }
-        variable_item_set_current_value_index(app->item_pt_i2c_addr, addr_index);
-        variable_item_set_current_value_text(app->item_pt_i2c_addr, pt_i2c_addr8_names[addr_index]);
     }
 
     // Give PT controllers time to settle after power-on before touching I2C.
