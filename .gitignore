@@ -31,3 +31,6 @@ out/
 
 # Local git backups
 .git_backup_*/
+
+# Dev tools & test data
+tools/
