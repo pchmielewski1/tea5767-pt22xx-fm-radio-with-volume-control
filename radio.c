@@ -1698,6 +1698,11 @@ static void fmradio_rds_pipeline_start(void) {
         fmradio_rds_acquisition_realtime_block_callback,
         NULL);
 
+    /* Start acquisition (ADC/DMA) – timer will provide ticks for worker */
+    if(!rds_acquisition_start(&rds_acquisition)) {
+        FURI_LOG_E(TAG, "Failed to start RDS acquisition");
+    }
+
     if(!fmradio_rds_capture_writer_start()) {
         FURI_LOG_E(TAG, "Failed to start RDS capture writer");
     }
@@ -1895,11 +1900,6 @@ static void fmradio_rds_symbol_callback(
     uint32_t confidence_q16) {
     UNUSED(context);
     UNUSED(confidence_q16);
-
-    /* Always push decoded bit to RDS core whenever RDS is enabled.
-     * This runs on the DSP worker thread, not on the ISR hot path. */
-    uint8_t bit = (symbol_i > 0) ? 1 : 0;
-    rds_core_push_bit(&rds_core, bit);
 
     /* Record constellation history only when debug view is active.
      * Guarded by rds_debug_enabled to avoid overhead in normal operation. */
