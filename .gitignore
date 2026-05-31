@@ -47,6 +47,8 @@ rds_runtime_meta.txt
 agent.md
 removable_candidates.md
 unused_symbols_report.md
+RDS_RUNTIME_STATE.md
+ARCHITECTURE.md
 AGENTS.md
 CLAUDE.md
 hooks/
