@@ -55,7 +55,7 @@ def main() -> int:
     # UI/About version macro in radio.c.
     replace_or_die(
         radio_c,
-        r'^(\s*#define\s+FMRADIO_UI_VERSION\s+")([^"]+)(")\s*$',
+        r'^(\s*#define\s+FRED_FM_UI_VERSION\s+")([^"]+)(")\s*$',
         rf'\g<1>{full_version}\g<3>',
     )
 

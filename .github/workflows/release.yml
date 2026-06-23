@@ -29,10 +29,10 @@ jobs:
         id: ver
         run: |
           # Base version for this fork.
-          BASE="0.9+pt2257"
+          BASE="0.11"
           BUILD="${GITHUB_RUN_NUMBER}"
           VERSION="${BASE}.${BUILD}"
-          TAG="v0.9-pt2257.${BUILD}"
+          TAG="v0.11.${BUILD}"
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -49,12 +49,12 @@ jobs:
           echo "radio.c header version:"
           grep -n '@version' radio.c || true
           echo "radio.c UI version macro:"
-          grep -n 'FMRADIO_UI_VERSION' radio.c || true
+          grep -n 'FRED_FM_UI_VERSION' radio.c || true
 
       - name: Build
         run: |
           ufbt update
-          ufbt fap_fmradio_controller_pt2257
+          ufbt fap_fred_fm
 
       - name: Collect artifacts
         shell: bash

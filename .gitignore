@@ -1,15 +1,26 @@
 # Python / local env
 .venv/
+venv/
 __pycache__/
 *.pyc
+node_modules/
 
-# Editor/OS
+# Editor / OS
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+
+# Agent / IDE tooling (local only — pliki mogą istnieć w repo, nie commitujemy)
+.claude/
+hooks/
+AGENTS.md
+CLAUDE.md
+agent.md
+.gitnexus/
 
 # Build artifacts (Flipper / scons / toolchains)
 *.o
@@ -19,39 +30,33 @@ Thumbs.db
 *.map
 *.d
 *.su
-
-# Packaged binaries
 *.fap
 *.fap.debug
-
-# Generic build directories
 build/
 dist/
 out/
 
-# Local git backups
-.git_backup_*/
+# Flipper catalog validation (lokalny checkout flipper-application-catalog)
+bundle.zip
 
-# Dev tools & test data
+# Dev tools & RDS lab data
 tools/
-
-# Local/archive hardware design workspace
 schematics/
 
-# RDS runtime artifacts (captured from Flipper)
+# Artefakty z Flippera / SD (powstają same w aplikacji — nie commitujemy)
 rds_capture_*.raw
 rds_capture_*.txt
 rds_runtime_meta.txt
+settings.fff
+presets.fff
 
-# Local-only docs / tooling (not pushed — keep README.md & TEA5767/examples.md tracked)
-agent.md
+# Wewnętrzna dokumentacja zespołu (nie do GitHuba)
+CATALOG_SUBMISSION_FRED_FLIPPER.md
+docs/
+ARCHITECTURE.md
+RDS_RUNTIME_STATE.md
 removable_candidates.md
 unused_symbols_report.md
-RDS_RUNTIME_STATE.md
-ARCHITECTURE.md
-AGENTS.md
-CLAUDE.md
-hooks/
-.cursor/
-.claude/
-docs/
+
+# Local git backups
+.git_backup_*/
