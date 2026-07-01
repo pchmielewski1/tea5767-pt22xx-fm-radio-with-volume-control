@@ -42,6 +42,8 @@ bundle.zip
 # Dev tools & RDS lab data
 tools/
 schematics/
+package.json
+package-lock.json
 
 # Artefakty z Flippera / SD (powstają same w aplikacji — nie commitujemy)
 rds_capture_*.raw
@@ -60,3 +62,4 @@ unused_symbols_report.md
 
 # Local git backups
 .git_backup_*/
+backups/
