@@ -46,10 +46,8 @@ jobs:
           set -euo pipefail
           echo "application.fam version:"
           grep -n 'fap_version' application.fam || true
-          echo "radio.c header version:"
-          grep -n '@version' radio.c || true
-          echo "radio.c UI version macro:"
-          grep -n 'FRED_FM_UI_VERSION' radio.c || true
+          echo "config.h UI version:"
+          grep -n 'FRED_FM_UI_VERSION' src/fred_fm/include/config.h || true
 
       - name: Build
         run: |

@@ -24,7 +24,7 @@ def main() -> int:
         return 2
 
     # ufbt requires application.fam fap_version to be strictly "major.minor".
-    # We still want a richer version string elsewhere (About screen, release tag).
+    # Richer build suffix (0.11.N) goes to FRED_FM_UI_VERSION for About/releases.
     match = re.match(r"^(\d+\.\d+)", full_version)
     if not match:
         print(
@@ -36,25 +36,16 @@ def main() -> int:
 
     repo_root = Path(__file__).resolve().parents[2]
     app_fam = repo_root / "application.fam"
-    radio_c = repo_root / "radio.c"
+    config_h = repo_root / "src" / "fred_fm" / "include" / "config.h"
 
-    # application.fam: fap_version="..."
     replace_or_die(
         app_fam,
         r'^(\s*fap_version\s*=\s*")([^"]+)(",\s*)$',
-        rf'\g<1>{fam_version}\g<3>',
+        rf"\g<1>{fam_version}\g<3>",
     )
 
-    # radio.c header: @version ...
     replace_or_die(
-        radio_c,
-        r'^(\s*\*\s*@version\s+)(.+)$',
-        rf'\g<1>{full_version}',
-    )
-
-    # UI/About version macro in radio.c.
-    replace_or_die(
-        radio_c,
+        config_h,
         r'^(\s*#define\s+FRED_FM_UI_VERSION\s+")([^"]+)(")\s*$',
         rf'\g<1>{full_version}\g<3>',
     )
